@@ -3,6 +3,7 @@ package uniandes.algorithms.readsanalyzer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -20,6 +21,9 @@ public class OverlapGraph implements RawReadProcessor {
 	private int minOverlap;
 	private Map<String,Integer> readCounts = new HashMap<>();
 	private Map<String,ArrayList<ReadOverlap>> overlaps = new HashMap<>();
+	
+	//Max abundance seen
+	private int maxAb = 1;
 	
 	/**
 	 * Creates a new overlap graph with the given minimum overlap
@@ -45,6 +49,23 @@ public class OverlapGraph implements RawReadProcessor {
 			//2.1 Crear un ArrayList para guardar las secuencias que tengan como prefijo un sufijo de la nueva secuencia
 			//2.2 Recorrer las secuencias existentes para llenar este ArrayList creando los nuevos sobrelapes que se encuentren.
 			//2.3 Después del recorrido para llenar la lista, agregar la nueva secuencia con su lista de sucesores al mapa de sobrelapes 
+			ArrayList n = new ArrayList<String>();
+			Iterator it = readCounts.keySet().iterator();
+			while(it.hasNext()) {
+				String act = (String) it.next();
+				//Buscando si la secuencia existente es prefijo del sufijo de la nueva
+				int ov = getOverlapLength(act, sequence);
+				if(ov > 0)
+					n.add(act);
+				//Buscando si la secuencia existente es sufijo del prefijo de la nueva
+				ov = getOverlapLength(sequence, act);
+				if(ov >0 ) {
+					ArrayList temp = overlaps.get(act);
+					temp.add(sequence);
+					overlaps.put(act, temp);
+				}
+			}
+			overlaps.put(sequence, n);
 			
 			//TODO: Paso 3. Actualizar el mapa de sobrelapes con los sobrelapes en los que la secuencia nueva sea sucesora de una secuencia existente
 			// Recorrer el mapa de sobrelapes. Para cada secuencia existente que tenga como sufijo un prefijo de la nueva secuencia
@@ -55,9 +76,11 @@ public class OverlapGraph implements RawReadProcessor {
 		{
 			int num = readCounts.get(sequence);
 			readCounts.replace(sequence, num++);
+			maxAb = num;
 		}
 		
 	}
+	
 	/**
 	 * Returns the length of the maximum overlap between a suffix of sequence 1 and a prefix of sequence 2
 	 * @param sequence1 Sequence to evaluate suffixes
@@ -81,8 +104,6 @@ public class OverlapGraph implements RawReadProcessor {
 		return 0;
 		// return max;
 	}
-
-	
 
 	/**
 	 * Returns a set of the sequences that have been added to this graph 
@@ -109,9 +130,16 @@ public class OverlapGraph implements RawReadProcessor {
 	 * observed as many times as the corresponding array index. Position zero should be equal to zero
 	 */
 	public int[] calculateAbundancesDistribution() {
-		//TODO: Implementar metodo - No entender
-		return null;
+		//TODO: Implementar metodo
+		int[] distr = new int[maxAb];
+		Set<String> seqs = getDistinctSequences();
+		for(String seq: seqs) {
+			int num = getSequenceAbundance(seq);
+			distr[num]++;
+		}
+		return distr;
 	}
+	
 	/**
 	 * Calculates the distribution of number of successors
 	 * @return int [] array where the indexes are number of successors and the values are the number of 
@@ -119,8 +147,15 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int[] calculateOverlapDistribution() {
 		// TODO: Implementar metodo
-		return null;
+		int[] arr = new int[1000];
+		Set<String> seqs = overlaps.keySet();
+		for(String seq: seqs) {
+			int numSucc = overlaps.get(seq).size();
+			arr[numSucc]++;
+		}
+		return arr;
 	}
+	
 	/**
 	 * Predicts the leftmost sequence of the final assembly for this overlap graph
 	 * @return String Source sequence for the layout path that will be the left most subsequence in the assembly

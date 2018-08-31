@@ -30,7 +30,9 @@ public class ReadsAnalyzerExample {
 		int kmerSize = 25;
 		int minOverlap = 10;
 		String command = args[0];
+		System.out.println(command);
 		String fastqFilename = args[1];
+		System.out.println(fastqFilename);
 		if(COMMAND_OVERLAP.equals(command)&& args.length>2) {
 			minOverlap = Integer.parseInt(args[2]);
 		} else if(COMMAND_KMERS.equals(command) && args.length>2) {

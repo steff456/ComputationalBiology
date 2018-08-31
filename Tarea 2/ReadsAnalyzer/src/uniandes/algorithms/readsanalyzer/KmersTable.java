@@ -1,5 +1,7 @@
 package uniandes.algorithms.readsanalyzer;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 import ngsep.sequences.RawRead;
@@ -10,11 +12,17 @@ import ngsep.sequences.RawRead;
 public class KmersTable implements RawReadProcessor {
 
 	/**
+	 * Table storing the kmers sequence and respective abundance.
+	 */
+	private Map<String, Integer> kmersTable;
+	
+	/**
 	 * Creates a new table with the given k-mer size
 	 * @param kmerSize length of k-mers stored in this table
 	 */
 	public KmersTable(int kmerSize) {
 		// TODO: Implementar metodo
+		kmersTable = new HashMap<String, Integer>(kmerSize);
 	}
 
 	/**
