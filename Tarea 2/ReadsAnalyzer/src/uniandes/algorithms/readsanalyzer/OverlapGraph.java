@@ -1,6 +1,8 @@
 package uniandes.algorithms.readsanalyzer;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -99,7 +101,6 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	private int getOverlapLength(String sequence1, String sequence2) {
 		// TODO Implementar metodo
-		int max = 0;
 		int i = 0; //suffix
 		int count = 0;
 		int j = 0; //prefix
@@ -175,6 +176,10 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public String getSourceSequence () {
 		// TODO Implementar metodo recorriendo las secuencias existentes y buscando una secuencia que no tenga predecesores
+		for(String seq: getDistinctSequences()) {
+			if(overlaps.get(seq).isEmpty())
+				return seq;
+		}
 		return null;
 	}
 	
@@ -184,12 +189,20 @@ public class OverlapGraph implements RawReadProcessor {
 	 * position i must be the source sequence of the overlap in position i+1. 
 	 */
 	public ArrayList<ReadOverlap> getLayoutPath() {
-		ArrayList<ReadOverlap> layout = new ArrayList<>();
-		HashSet<String> visitedSequences = new HashSet<>(); 
+		ArrayList<ReadOverlap> layout = new ArrayList<ReadOverlap>();
+		HashSet<String> visitedSequences = new HashSet<String>(); 
 		// TODO Implementar metodo. Comenzar por la secuencia fuente que calcula el método anterior
 		// Luego, hacer un ciclo en el que en cada paso se busca la secuencia no visitada que tenga mayor sobrelape con la secuencia actual.
 		// Agregar el sobrelape a la lista de respuesta y la secuencia destino al conjunto de secuencias visitadas. Parar cuando no se encuentre una secuencia nueva
-		
+		String act = getSourceSequence();
+//		while(visitedSequences.size() != getDistinctSequences().size()) {
+			ArrayList<ReadOverlap> actOverlap = overlaps.get(act);
+			actOverlap.sort(new abundanceComparator());
+//			act = actOverlap.get(0).getDestSequence();
+			if(!actOverlap.isEmpty())
+				System.out.println("bieeeeeeen");
+			visitedSequences.add(act);
+//		}
 		return layout;
 	}
 	/**
@@ -202,7 +215,17 @@ public class OverlapGraph implements RawReadProcessor {
 		// TODO Recorrer el layout y ensamblar la secuencia agregando al objeto assembly las bases adicionales que aporta la región de cada secuencia destino que está a la derecha del sobrelape 
 		
 		return assembly.toString();
-	}
+	} 
+	
+}
 
+class abundanceComparator implements Comparator<ReadOverlap>{
+
+	@Override
+	public int compare(ReadOverlap o1, ReadOverlap o2) {
+		boolean comp1 = o1.getOverlap() > o2.getOverlap();
+		boolean comp2 = o1.getOverlap() == o2.getOverlap();
+		return comp1 ? -1 : comp2 ? 0 : 1;
+	}
 	
 }

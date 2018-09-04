@@ -16,13 +16,20 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	private Map<String, Integer> kmersTable;
 	
+	//Length of kmersize
+	private int kmersize;
+	
+	//Max abundance seen
+	private int maxAb = 1;
+	
 	/**
 	 * Creates a new table with the given k-mer size
 	 * @param kmerSize length of k-mers stored in this table
 	 */
 	public KmersTable(int kmerSize) {
 		// TODO: Implementar metodo
-		kmersTable = new HashMap<String, Integer>(kmerSize);
+		kmersTable = new HashMap<String, Integer>();
+		kmersize = kmerSize;
 	}
 
 	/**
@@ -30,9 +37,22 @@ public class KmersTable implements RawReadProcessor {
 	 * @param read object to extract new k-mers
 	 */
 	public void processRead(RawRead read) {
-		String sequence = read.getSequenceString();
 		// TODO Implementar metodo. Calcular todos los k-mers del tamanho dado en la constructora y actualizar la abundancia de cada k-mer
-		
+		String sequence = read.getSequenceString();
+		int i = 0;
+		while(i < sequence.length() - kmersize) {
+			String kact = sequence.substring(i, (i+kmersize));
+			if(!kmersTable.containsKey(kact)) {
+				kmersTable.put(kact, 1);
+			}
+			else {
+				int ab = getAbundance(kact);
+				kmersTable.replace(kact, ++ab);
+				if(++ab > maxAb)
+					maxAb = ab;
+			}
+			i++;
+		}
 	}
 	
 	/**
@@ -41,7 +61,7 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public Set<String> getDistinctKmers() {
 		// TODO Implementar metodo
-		return null;
+		return kmersTable.keySet();
 	}
 	
 	/**
@@ -51,7 +71,7 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public int getAbundance(String kmer) {
 		// TODO Implementar metodo
-		return 0;
+		return kmersTable.get(kmer);
 	}
 	
 	/**
@@ -61,6 +81,11 @@ public class KmersTable implements RawReadProcessor {
 	 */
 	public int[] calculateAbundancesDistribution() {
 		// TODO Implementar metodo
-		return null;
+		int[] dist = new int[maxAb];
+		for(String kmer : getDistinctKmers()) {
+			int actAb = getAbundance(kmer);
+			dist[actAb]++;
+		}
+		return dist;
 	}
 }
