@@ -25,6 +25,9 @@ public class OverlapGraph implements RawReadProcessor {
 	//Max abundance seen
 	private int maxAb = 1;
 	
+	//Max succesors seen
+	private int maxSucc = 1;
+	
 	/**
 	 * Creates a new overlap graph with the given minimum overlap
 	 * @param minOverlap Minimum overlap
@@ -49,34 +52,41 @@ public class OverlapGraph implements RawReadProcessor {
 			//2.1 Crear un ArrayList para guardar las secuencias que tengan como prefijo un sufijo de la nueva secuencia
 			//2.2 Recorrer las secuencias existentes para llenar este ArrayList creando los nuevos sobrelapes que se encuentren.
 			//2.3 Después del recorrido para llenar la lista, agregar la nueva secuencia con su lista de sucesores al mapa de sobrelapes 
-			ArrayList n = new ArrayList<String>();
-			Iterator it = readCounts.keySet().iterator();
-			while(it.hasNext()) {
-				String act = (String) it.next();
-				//Buscando si la secuencia existente es prefijo del sufijo de la nueva
-				int ov = getOverlapLength(act, sequence);
-				if(ov > 0)
-					n.add(act);
-				//Buscando si la secuencia existente es sufijo del prefijo de la nueva
-				ov = getOverlapLength(sequence, act);
-				if(ov >0 ) {
-					ArrayList temp = overlaps.get(act);
-					temp.add(sequence);
-					overlaps.put(act, temp);
-				}
-			}
-			overlaps.put(sequence, n);
 			
 			//TODO: Paso 3. Actualizar el mapa de sobrelapes con los sobrelapes en los que la secuencia nueva sea sucesora de una secuencia existente
 			// Recorrer el mapa de sobrelapes. Para cada secuencia existente que tenga como sufijo un prefijo de la nueva secuencia
 			//se agrega un nuevo sobrelape a la lista de sobrelapes de la secuencia existente
 			
+			ArrayList<ReadOverlap> newOverlaps = new ArrayList<ReadOverlap>();
+			Iterator<String> it = overlaps.keySet().iterator();
+			while(it.hasNext()) {
+				String act = it.next();
+				//Calculate overlap suff: seq, pref: act
+				int lenOverlap1 = getOverlapLength(sequence, act);
+				if(lenOverlap1 > minOverlap) {
+					ReadOverlap ro = new ReadOverlap(sequence, act, lenOverlap1);
+					newOverlaps.add(ro);
+				}
+				//Calculate overlap suff: act, pref: seq
+				int lenOverlap2 = getOverlapLength(act, sequence);
+				if(lenOverlap2 > minOverlap) {
+					ReadOverlap ro = new ReadOverlap(act, sequence, lenOverlap1);
+					overlaps.get(act).add(ro);
+					if(overlaps.get(act).size() > maxSucc)
+						maxSucc = overlaps.get(act).size();
+				}
+			}
+			//Adds the key and new overlaps to the map
+			overlaps.put(sequence, newOverlaps);
+			if(newOverlaps.size() > maxSucc)
+				maxSucc = newOverlaps.size();
 		}
 		else
 		{
 			int num = readCounts.get(sequence);
-			readCounts.replace(sequence, num++);
-			maxAb = num;
+			readCounts.replace(sequence, ++num);
+			if(++num > maxAb)
+				maxAb = num;
 		}
 		
 	}
@@ -90,19 +100,22 @@ public class OverlapGraph implements RawReadProcessor {
 	private int getOverlapLength(String sequence1, String sequence2) {
 		// TODO Implementar metodo
 		int max = 0;
-		boolean finish = false;
-		for (int i = 0; i < sequence1.length() && !finish; i++) {
-			for (int j = sequence2.length()-1; j >= 0; j--) {
-				if(sequence1.charAt(i) == sequence2.charAt(j)) {
-					max++;
-				}
-				else {
-					return max;
-				}
+		int i = 0; //suffix
+		int count = 0;
+		int j = 0; //prefix
+		while(i < sequence2.length() && j<sequence1.length()) {
+			if(sequence1.charAt(i) == sequence2.charAt(j)) {
+				count++;
+				i++;
+				j++;
+			}
+			else {
+				i++;
+				j=0;
+				count=0;
 			}
 		}
-		return 0;
-		// return max;
+		return count;
 	}
 
 	/**
@@ -147,7 +160,7 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int[] calculateOverlapDistribution() {
 		// TODO: Implementar metodo
-		int[] arr = new int[1000];
+		int[] arr = new int[(maxSucc+1)];
 		Set<String> seqs = overlaps.keySet();
 		for(String seq: seqs) {
 			int numSucc = overlaps.get(seq).size();
