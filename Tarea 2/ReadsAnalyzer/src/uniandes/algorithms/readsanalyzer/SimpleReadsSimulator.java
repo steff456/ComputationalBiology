@@ -49,14 +49,13 @@ public class SimpleReadsSimulator {
 			// Utilizar la cadena fixedQSStr para generar calidades fijas para el formato
 			int count = 0;
 			int code = random.hashCode();
-			while(count < 15*numReads) {
-				int posi = (int) random.nextFloat()*sequence.length();
-				String sub = sequence.substring(posi, readLength);
-				String fix = fixedQSStr.substring(posi, readLength);
+			while(count < numReads) {
+				int posi = random.nextInt(sequence.length()-readLength);
+				String sub = sequence.substring(posi, posi+readLength);
 				out.println("@" + code);
 				out.println(sub);
 				out.println("+");
-				out.println(fix);	
+				out.println(fixedQSStr);	
 				count++;
 				code++;
 			}

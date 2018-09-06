@@ -144,8 +144,9 @@ public class OverlapGraph implements RawReadProcessor {
 	 */
 	public int[] calculateAbundancesDistribution() {
 		//TODO: Implementar metodo
-		int[] distr = new int[maxAb];
+		int[] distr = new int[++maxAb];
 		Set<String> seqs = getDistinctSequences();
+		System.out.println("len distr" + maxAb);
 		for(String seq: seqs) {
 			int num = getSequenceAbundance(seq);
 			distr[num]++;
