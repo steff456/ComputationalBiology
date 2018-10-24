@@ -1,6 +1,7 @@
 package uniandes.algorithms.alntools;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.Iterator;
 
 import ngsep.alignments.ReadAlignment;
@@ -31,8 +32,15 @@ public class BasicAlignmentStatistics {
 	 */
 	public static void main(String[] args) throws Exception {
 		BasicAlignmentStatistics instance = new BasicAlignmentStatistics();
-		instance.processAlignmentsFile(args[0]);
-		instance.printStatistics();
+		String temp = "";
+		try {
+			temp = args[0];
+		}
+		catch(Exception e){
+			temp = "/Users/tefa/Documents/BioComp/ComputationalBiology/Tarea 4/Seg5_bowtie2_sorted.bam";			
+		}
+		instance.processAlignmentsFile(temp);
+		instance.printStatistics(temp);
 	}
 
 	/**
@@ -46,6 +54,22 @@ public class BasicAlignmentStatistics {
 			Iterator<ReadAlignment> it = reader.iterator();
 			while (it.hasNext()) {
 				ReadAlignment aln = it.next();
+				totalReads += aln.getReadLength();
+				totalAlignments += 1;
+				if(aln.isReadUnmapped())
+					unalignedReads += 1;
+				else alignedReads +=1;
+				if(aln.isProperPair())
+					pairProperlyAligned += 1;
+				if(aln.isMateDifferentSequence())
+					mateInDifferentSequence += 1;
+				if(aln.isMateUnmapped())
+					mateUnaligned += 1;
+				if(aln.isUnique())
+					uniqueAlignments += 1;
+				if(aln.isSecondary())
+					secondaryAlignments += 1;
+				alignmentQualitiesDistribution[aln.getAlignmentQuality()] += 1;
 				// TODO: Utilzar los metodos del objeto aln para actualzar las estadisticas
 			}
 		}
@@ -53,9 +77,25 @@ public class BasicAlignmentStatistics {
 	/**
 	 * Prints the statistics to standard output
 	 */
-	public void printStatistics() {
+	public void printStatistics(String file) {
 		// TODO: Implementar metodo
-		
+		System.out.println("Basic Alignment Statistics for BAM file: " + file);
+		System.out.println("--------------------------------------------------");
+		System.out.println("Total Reads: " + totalReads);
+		System.out.println("Total Alignments: " + totalAlignments);
+		System.out.println("Aligned Reads: " + alignedReads);
+		System.out.println("Unaligned Reads: " + unalignedReads);
+		System.out.println("Pair Properly Aligned: " + pairProperlyAligned);
+		System.out.println("Mate in Different Sequence: " + mateInDifferentSequence);
+		System.out.println("Mate Unaligned: " + mateUnaligned);
+		System.out.println("Unique Alignments: " + uniqueAlignments);
+		System.out.println("Secondary Alignments: " + secondaryAlignments);
+		System.out.println("--------------------------------------------------");
+		System.out.println("Alignment Quality Distribution");
+		System.out.println("Quality\t Number of Reads");			
+		for (int i = 0; i < alignmentQualitiesDistribution.length; i++) {
+			System.out.println(i + "\t " + alignmentQualitiesDistribution[i]);
+		}
 	}
 
 }
