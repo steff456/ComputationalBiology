@@ -14,7 +14,10 @@ import ngsep.alignments.io.ReadAlignmentFileReader;
  */
 public class InsertLengthDistributionCalculator {
 
+	public static final int N_BINS = 50;
+	
 	//TODO: Definir un atributo para guardar la distribucion de tamaño de inserto
+	public int[] insertLengthDistr = new int[N_BINS];
 	
 	/**
 	 * Main method to run the program
@@ -23,7 +26,14 @@ public class InsertLengthDistributionCalculator {
 	 */
 	public static void main(String[] args) throws Exception {
 		InsertLengthDistributionCalculator instance = new InsertLengthDistributionCalculator();
-		instance.processAlignmentsFile(args[0]);
+		String temp = "";
+		try {
+			temp = args[0];
+		}
+		catch(Exception e){
+			temp = "/Users/tefa/Documents/BioComp/Seg5_bowtie2_sorted.bam";			
+		}
+		instance.processAlignmentsFile(temp);
 		instance.printDistribution ();
 	}
 	/**
@@ -40,6 +50,12 @@ public class InsertLengthDistributionCalculator {
 				// TODO: Pedir al objeto aln el insert length que se predice a partir del alineamiento de la lectura y su par
 				// Si el insert length es positivo, se procesa su valor en la distribucion
 				// verificar si la lectura esta alineada y si el alineamiento es primario
+				int size = aln.getInferredInsertSize();
+				if(aln.isProperPair() && !aln.isSecondary() && size > 0){
+					int bin = size/N_BINS;
+					if(bin < insertLengthDistr.length)
+						insertLengthDistr[bin]++;
+				}
 			}
 		}	
 	}
@@ -49,7 +65,12 @@ public class InsertLengthDistributionCalculator {
 	 */
 	public void printDistribution() {
 		// TODO: Implementar metodo
-		
+		System.out.println("Insert Length Distribution Calulator");
+		System.out.println("--------------------------------------------------");
+		System.out.println("Insert Length\t Number of Reads");			
+		for (int i = 0; i < insertLengthDistr.length; i++) {
+			System.out.println(i + "\t \t " + insertLengthDistr[i]);
+		}
 	}
 
 }

@@ -37,7 +37,7 @@ public class BasicAlignmentStatistics {
 			temp = args[0];
 		}
 		catch(Exception e){
-			temp = "/Users/tefa/Documents/BioComp/ComputationalBiology/Tarea 4/Seg5_bowtie2_sorted.bam";			
+			temp = "/Users/tefa/Documents/BioComp/Seg5_bowtie2_sorted.bam";			
 		}
 		instance.processAlignmentsFile(temp);
 		instance.printStatistics(temp);
@@ -92,6 +92,7 @@ public class BasicAlignmentStatistics {
 		System.out.println("Secondary Alignments: " + secondaryAlignments);
 		System.out.println("--------------------------------------------------");
 		System.out.println("Alignment Quality Distribution");
+		System.out.println("------------------------");
 		System.out.println("Quality\t Number of Reads");			
 		for (int i = 0; i < alignmentQualitiesDistribution.length; i++) {
 			System.out.println(i + "\t " + alignmentQualitiesDistribution[i]);
