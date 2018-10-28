@@ -26,8 +26,16 @@ public class SimpleSNPDetector implements PileupListener {
 	 * @throws Exception If the files can not be read
 	 */
 	public static void main(String[] args) throws Exception {
-		String genomeFile = args[0];
-		String alignmentsFile = args[1];
+		String genomeFile = "";
+		String alignmentsFile = "";
+		try {
+			genomeFile = args[0];
+			alignmentsFile = args[1];			
+		}
+		catch(Exception e) {
+			genomeFile = "/Users/tefa/Documents/BioComp/yeastGenome.fa";
+			alignmentsFile = "/Users/tefa/Documents/BioComp/Seg5_bowtie2_sorted.bam";
+		}
 		SimpleSNPDetector instance = new SimpleSNPDetector();
 		instance.genome = new ReferenceGenome(genomeFile);
 		AlignmentsPileupGenerator generator = new AlignmentsPileupGenerator();
@@ -41,10 +49,25 @@ public class SimpleSNPDetector implements PileupListener {
 		int referencePos = record.getPosition();
 		char referenceBase = genome.getReferenceBase(seqName, referencePos);
 		List<ReadAlignment> alnsPos = record.getAlignments();
-		
+		// [0]: A, [1]: G, [2]: T, [3]: C
 		// TODO: Recorrer la lista de alineamientos y para cada uno ubicar la base
 		// en la lectura que corresponde a la posicion referencePos.
 		// Imprimir los datos de todas las posiciones que tengan al menos un llamado a una base diferente a la referencia
+		for(ReadAlignment aln:alnsPos) {
+			int ref = aln.getReferencePosition(referencePos);
+			CharSequence actSeq = aln.getAlleleCall(referencePos);
+			if( actSeq != null && actSeq.length()>0 ) {
+				char actBase = actSeq.charAt(0);
+				if(actBase != referenceBase) {
+					System.out.println("Sequence Name: " + aln.getSequenceName());
+					System.out.println("SNP Position: " + referencePos);
+					System.out.println("Reference Base: "+ referenceBase);
+					System.out.println("Read Alignment: " + aln.getReadName());
+					System.out.println("Alternative Base: " + actBase);
+					System.out.println("------------------");
+				}				
+			}
+		}
 	}
 
 	@Override
