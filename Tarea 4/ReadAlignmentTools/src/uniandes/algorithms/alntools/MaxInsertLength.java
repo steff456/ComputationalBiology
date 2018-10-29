@@ -29,6 +29,7 @@ public class MaxInsertLength {
 		catch(Exception e){
 			temp = "/Users/tefa/Documents/BioComp/Seg5_bowtie2_sorted.bam";			
 			maxInsertLength = 600;
+			outFile= "/Users/tefa/Desktop/insertL.txt";
 		}
 		instance.findAlnMaxLength(temp, maxInsertLength, outFile);
 //		instance.processAlignmentsFile(temp);
@@ -57,9 +58,12 @@ public class MaxInsertLength {
 			while (it.hasNext()) {
 				ReadAlignment aln = it.next();
 				// TODO: Check if the insert length is greater than the expected
-				pw.write("Sequence name: " + aln.getSequenceName()+ "\n");
-				pw.write("Final position: " + "\n");
-				pw.write("Initial position of mate: " + aln.getMateFirst() + "\n");
+				if(aln.getInferredInsertSize() > maxInsertLength) {
+					pw.write("Sequence name: " + aln.getSequenceName()+ "\n");
+					pw.write("Initial position of mate: " + aln.getFirst() + "\n");					
+					pw.write("Final position: " + (aln.getFirst() + aln.getInferredInsertSize()) +"\n");
+					pw.write("-------------\n");
+				}
 			}
 		}
 	}
