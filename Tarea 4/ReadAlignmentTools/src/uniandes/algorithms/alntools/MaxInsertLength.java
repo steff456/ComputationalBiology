@@ -1,8 +1,11 @@
 package uniandes.algorithms.alntools;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.Iterator;
 
@@ -51,7 +54,7 @@ public class MaxInsertLength {
 		pw.write("Input file: " + file + "\n");
 		pw.write("Maximum Length: " + maxInsertLength + "\n");
 		pw.write("------------------------------------------------------\n");
-		
+		pw.write("Sequence Name\t Initial Position Mate\t Final Position\n");
 		//Reads input file
 		try (ReadAlignmentFileReader reader = new ReadAlignmentFileReader(file)){
 			Iterator<ReadAlignment> it = reader.iterator();
@@ -59,12 +62,21 @@ public class MaxInsertLength {
 				ReadAlignment aln = it.next();
 				// TODO: Check if the insert length is greater than the expected
 				if(aln.getInferredInsertSize() > maxInsertLength) {
-					pw.write("Sequence name: " + aln.getSequenceName()+ "\n");
-					pw.write("Initial position of mate: " + aln.getFirst() + "\n");					
-					pw.write("Final position: " + (aln.getFirst() + aln.getInferredInsertSize()) +"\n");
-					pw.write("-------------\n");
+					String out = String.format("%s\t\t %s\t\t\t %s\n", 
+											   aln.getSequenceName(), 
+											   aln.getMateFirst() + "", 
+											   (aln.getFirst() + aln.getInferredInsertSize()) + "");
+					pw.write(out);
 				}
 			}
+		}
+	}
+	
+	public void predictionDeletion(String file) throws IOException {
+		BufferedReader br = new BufferedReader(new FileReader(file));
+		String line = br.readLine();
+		while(line != "" && line != null) {
+			line = br.readLine();
 		}
 	}
 

@@ -18,6 +18,7 @@ public class InsertLengthDistributionCalculator {
 	
 	//TODO: Definir un atributo para guardar la distribucion de tamaño de inserto
 	public int[] insertLengthDistr = new int[N_BINS];
+	public int big = 0;
 	
 	/**
 	 * Main method to run the program
@@ -51,10 +52,11 @@ public class InsertLengthDistributionCalculator {
 				// Si el insert length es positivo, se procesa su valor en la distribucion
 				// verificar si la lectura esta alineada y si el alineamiento es primario
 				int size = aln.getInferredInsertSize();
-				if(aln.isProperPair() && !aln.isSecondary() && size > 0){
+				if(!aln.isSecondary() && size > 0){
 					int bin = size/N_BINS;
 					if(bin < insertLengthDistr.length)
 						insertLengthDistr[bin]++;
+					else big++;
 				}
 			}
 		}	
@@ -67,10 +69,12 @@ public class InsertLengthDistributionCalculator {
 		// TODO: Implementar metodo
 		System.out.println("Insert Length Distribution Calulator");
 		System.out.println("--------------------------------------------------");
-		System.out.println("Insert Length\t Number of Reads");			
-		for (int i = 0; i < insertLengthDistr.length; i++) {
-			System.out.println(i + "\t \t " + insertLengthDistr[i]);
+		System.out.println("Insert Length\t Number of Reads");		
+		int i = 0;
+		for (; i < insertLengthDistr.length; i++) {
+			System.out.println((i*N_BINS) + "\t \t " + insertLengthDistr[i]);
 		}
+		System.out.println((i*N_BINS) + "\t \t " + big);
 	}
 
 }
