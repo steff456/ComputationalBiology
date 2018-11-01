@@ -34,12 +34,13 @@ public class MaxInsertLength {
 			maxInsertLength = 600;
 			outFile= "/Users/tefa/Desktop/insertL.txt";
 		}
+		
 		instance.findAlnMaxLength(temp, maxInsertLength, outFile);
 //		instance.processAlignmentsFile(temp);
 //		instance.printStatistics(temp);
 		// Sequence name = cromosomas
 	}
-
+	
 	/**
 	 * Find alignments with an insert length greater than the maximum given by parameter
 	 * Writes a file with the alignments found.
@@ -76,6 +77,7 @@ public class MaxInsertLength {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		String line = br.readLine();
 		while(line != "" && line != null) {
+			
 			line = br.readLine();
 		}
 	}
