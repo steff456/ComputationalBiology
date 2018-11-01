@@ -24,11 +24,12 @@ public class PredictSite {
 			file= "/Users/tefa/Desktop/insertL.txt";
 		}
 		
-		instance.findSite(file);
+		instance.loadData(file);
+		instance.findDeletions();
 		// Sequence name = cromosomas
 	}
 	
-	public void findSite(String file) throws IOException {
+	public void loadData(String file) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		System.out.println("Reading data ...");
 		// Discard the header lines
@@ -45,7 +46,13 @@ public class PredictSite {
 			int last = Integer.parseInt(data[data.length-1].trim());
 			GenomicRegionImpl nlec = new GenomicRegionImpl(seqName, first, last);
 			if(!inHashMap(seqName)) {
-				
+				ArrayList<GenomicRegionImpl> temp = new ArrayList<GenomicRegionImpl>();
+				temp.add(nlec);
+				reads.put(seqName, temp);
+			}
+			else {
+				ArrayList<GenomicRegionImpl> temp = reads.get(seqName);
+				temp.add(nlec);
 			}
 			line = br.readLine();
 		}
@@ -63,5 +70,44 @@ public class PredictSite {
 			}
 		}
 		return false;
+	}
+	
+	public void findDeletions() {
+		Set keys = reads.keySet();
+		Iterator it = keys.iterator();
+		while(it.hasNext()) {
+			ArrayList<GenomicRegionImpl> alns = reads.get(it.next());
+			int max = getMaxRepeat(alns);
+			for(GenomicRegionImpl aln: alns) {
+				int actDiff = aln.getLast() - aln.getFirst();
+				if(actDiff != max) {
+					System.out.println("actDiff: " + actDiff + ";" + max);
+					String s = String.format("%s;%s;%s", aln.getSequenceName(), aln.getFirst(), aln.getLast());
+					System.out.println(s);
+				}
+			}
+		}
+	}
+	
+	public int getMaxRepeat(ArrayList<GenomicRegionImpl> alns) {
+		int max = 0;
+		int ref = 0;
+		HashMap<Integer, Integer> differences = new HashMap<Integer, Integer>();
+		for(GenomicRegionImpl aln: alns) {
+			int actDiff = aln.getLast() - aln.getFirst();
+			if(!differences.keySet().contains(actDiff)) {
+				differences.put(actDiff, 1);
+			}
+			else {
+				int temp = differences.get(actDiff);
+				temp++;
+				differences.put(actDiff, temp);
+				if(temp > max) {
+					max = temp;
+					ref = actDiff;
+				}
+			}
+		}
+		return ref;
 	}
 }
