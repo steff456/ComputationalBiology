@@ -34,11 +34,9 @@ public class MaxInsertLength {
 			maxInsertLength = 600;
 			outFile= "/Users/tefa/Desktop/insertL.txt";
 		}
-		
+		System.out.println("Generating file at: " + outFile);
 		instance.findAlnMaxLength(temp, maxInsertLength, outFile);
-//		instance.processAlignmentsFile(temp);
-//		instance.printStatistics(temp);
-		// Sequence name = cromosomas
+		System.out.println("Finished!");
 	}
 	
 	/**
@@ -73,13 +71,4 @@ public class MaxInsertLength {
 		}
 	}
 	
-	public void predictionDeletion(String file) throws IOException {
-		BufferedReader br = new BufferedReader(new FileReader(file));
-		String line = br.readLine();
-		while(line != "" && line != null) {
-			
-			line = br.readLine();
-		}
-	}
-
 }
