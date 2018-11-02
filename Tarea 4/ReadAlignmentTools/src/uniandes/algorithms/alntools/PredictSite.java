@@ -25,10 +25,18 @@ public class PredictSite {
 		}
 		
 		instance.loadData(file);
+		System.out.println("---------------------------------------");
+		System.out.println("The following deletions were found: ");
+		System.out.println("Sequence Name;First Mate Position;Last position");
 		instance.findDeletions();
 		// Sequence name = cromosomas
 	}
 	
+	/**
+	 * Loads the file created for big alignments
+	 * @param file
+	 * @throws IOException
+	 */
 	public void loadData(String file) throws IOException {
 		BufferedReader br = new BufferedReader(new FileReader(file));
 		System.out.println("Reading data ...");
@@ -60,6 +68,11 @@ public class PredictSite {
 		
 	}
 	
+	/**
+	 * Checks if the elements already exists on the hashMap
+	 * @param key
+	 * @return
+	 */
 	public boolean inHashMap(String key) {
 		Set keys = reads.keySet();
 		Iterator it = keys.iterator();
@@ -72,6 +85,9 @@ public class PredictSite {
 		return false;
 	}
 	
+	/**
+	 * Finds deletions on the reads obtained
+	 */
 	public void findDeletions() {
 		Set keys = reads.keySet();
 		Iterator it = keys.iterator();
@@ -81,7 +97,6 @@ public class PredictSite {
 			for(GenomicRegionImpl aln: alns) {
 				int actDiff = aln.getLast() - aln.getFirst();
 				if(actDiff != max) {
-					System.out.println("actDiff: " + actDiff + ";" + max);
 					String s = String.format("%s;%s;%s", aln.getSequenceName(), aln.getFirst(), aln.getLast());
 					System.out.println(s);
 				}
@@ -89,9 +104,15 @@ public class PredictSite {
 		}
 	}
 	
+	/**
+	 * Searches the most common length of alignment per sequence name
+	 * @param alns
+	 * @return the most common difference
+	 */
 	public int getMaxRepeat(ArrayList<GenomicRegionImpl> alns) {
 		int max = 0;
 		int ref = 0;
+		//Key: Difference, Value: # of alns with that Difference
 		HashMap<Integer, Integer> differences = new HashMap<Integer, Integer>();
 		for(GenomicRegionImpl aln: alns) {
 			int actDiff = aln.getLast() - aln.getFirst();
@@ -101,10 +122,12 @@ public class PredictSite {
 			else {
 				int temp = differences.get(actDiff);
 				temp++;
-				differences.put(actDiff, temp);
-				if(temp > max) {
-					max = temp;
-					ref = actDiff;
+				if(actDiff != 0) {
+					differences.put(actDiff, temp);
+					if(temp > max ) {
+						max = temp;
+						ref = actDiff;
+					}					
 				}
 			}
 		}
